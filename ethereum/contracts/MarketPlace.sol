@@ -7,17 +7,29 @@ contract MarketFactory {
 
 
 
+
     address payable[] public deployedLabourMarkets;
     address payable[] public deployedPhysicalMarkets;
 
+    mapping(address => address) public getLabourMarket;
+    mapping(address => bool) public labourMarketOwned;
+    mapping(address => bool) public physicalMarketOwned;
+    mapping(address => address) public getPhysicalMarket;
+
     function createLabourMarket() public {
+        require(!labourMarketOwned[msg.sender]);
         address newMarket = address(new LabourMarket(msg.sender));
         deployedLabourMarkets.push(payable(newMarket));
+        getLabourMarket[msg.sender] = newMarket;
+        labourMarketOwned[msg.sender] = true;
     }
 
      function createPhysicalMarket() public {
+     require(!physicalMarketOwned[msg.sender]);
         address newMarket = address(new PhysicalMarket(msg.sender));
         deployedPhysicalMarkets.push(payable(newMarket));
+        getPhysicalMarket[msg.sender] = newMarket;
+        physicalMarketOwned[msg.sender] = true;
     }
 
 
@@ -35,6 +47,7 @@ contract MarketFactory {
 contract LabourMarket {
 
     struct Service{
+        string header;
         string description;
         uint value;
         bool availability;
@@ -46,6 +59,8 @@ contract LabourMarket {
         bool complete;
         uint requestTime;
         address buyer;
+
+        bool buyerApprove;
     }
 
     Service[] public serviceTypes;
@@ -57,8 +72,8 @@ contract LabourMarket {
     address public seller;
     mapping(address => uint) serviceBought;
 
-    mapping(uint => uint) sellerOTP;
-    mapping(uint => uint) buyerOTP;
+
+
 
 
     modifier availability(){
@@ -79,9 +94,10 @@ contract LabourMarket {
         penalty = 100000000000000; // in ether = 0.0001
     }
 
-    function createService(string memory description, uint value) public restricted{
+    function createService(string memory header,string memory description, uint value) public restricted{
         Service storage newService = serviceTypes.push();
 
+        newService.header = header;
         newService.description = description;
         newService.value = value;
         newService.availability = true;
@@ -98,12 +114,10 @@ contract LabourMarket {
         service.serviceType = serviceIndex;
         service.buyer = msg.sender;
         service.complete = false;
+        serviceType.availability = false;
+        serviceBought[msg.sender]=services.length;
 
-        sellerOTP[service.requestTime] = uint(keccak256(abi.encodePacked(block.timestamp,block.difficulty,
- msg.sender))) % 1000;
-
-        buyerOTP[service.requestTime] = uint(keccak256(abi.encodePacked(block.timestamp,block.difficulty,
- msg.sender))) % 1000;
+      service.buyerApprove= false;
 
     }
 
@@ -113,6 +127,7 @@ contract LabourMarket {
 
         service.complete = true;
         serviceType.availability = true;
+        service.buyerApprove = true;
 
         if(block.timestamp < service.requestTime + 30 minutes){
 
@@ -133,6 +148,7 @@ contract LabourMarket {
 
         service.complete = true;
         serviceType.availability = true;
+        service.buyerApprove = true;
 
         if(block.timestamp < service.requestTime + 30 minutes){
             payable(service.buyer).transfer(serviceType.value + msg.value);
@@ -143,10 +159,21 @@ contract LabourMarket {
         }
     }
 
-    function sellerApproval(uint index,uint sellOTP,uint buyOTP) public restricted{
+
+    function buyerApproval(uint index) public {
+    ServiceRequest storage service = services[index];
+
+    require(service.buyer == msg.sender);
+
+    service.buyerApprove = true;
+    }
+
+
+    function sellerApproval(uint index) public restricted{
         ServiceRequest storage service = services[index];
 
-        require(sellerOTP[service.requestTime] == sellOTP && buyerOTP[service.requestTime] == buyOTP);
+        require(service.buyerApprove);
+
 
         service.complete = true;
 
@@ -160,12 +187,22 @@ contract LabourMarket {
     }
 
 
+
+    function getServiceTypesCount() public view returns(uint) {
+    return serviceTypes.length;
+    }
+
+    function getServiceCount() public view returns(uint) {
+    return services.length;
+    }
+
+
 }
 
 contract PhysicalMarket {
-    address public Seller;
+    address public seller;
 
     constructor (address creator) public {
-        Seller = creator;
+        seller = creator;
     }
 }

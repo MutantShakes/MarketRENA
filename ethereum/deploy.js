@@ -3,8 +3,8 @@ const Web3 = require("web3");
 const compiledFactory = require("./build/MarketFactory.json");
 
 const provider = new HDWalletProvider(
-  "wolf ill receive orange leisure dash language blood glance step injury exotic", // Mnemocin here
-  "https://goerli.infura.io/v3/6daee45f958b4a4ba25dd391d48358ed" // infura API
+  "", // Mnemocin here
+  "" // infura API
 );
 const web3 = new Web3(provider);
 

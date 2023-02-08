@@ -14,7 +14,7 @@ import "../styles/globals.css";
 
 const { chains, provider } = configureChains(
   [goerli, mainnet, polygon, optimism, arbitrum],
-  [infuraProvider({ apiKey: "6daee45f958b4a4ba25dd391d48358ed" })]
+  [infuraProvider({ apiKey: "" })] //Infura API
 );
 
 const { connectors } = getDefaultWallets({

@@ -5,20 +5,13 @@ import Header from "./Header";
 
 const Layout = (props) => {
   return (
-    <Container fluid>
-      <style>
-        {`
-    html, body {
-      background-color: #0d0d0d
- !important;
-    }
-
-  `}
-      </style>
+    <div>
       <Header name={props.name} />
 
-      <Container style={{ marginBottom: 20 }}>{props.children}</Container>
-    </Container>
+      <Container style={{ marginBottom: 20, marginTop: "7em" }}>
+        {props.children}
+      </Container>
+    </div>
   );
 };
 

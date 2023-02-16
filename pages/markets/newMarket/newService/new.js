@@ -59,7 +59,6 @@ class CreateService extends Component {
       <Layout>
         <BackButton name="Service Creation" />
         <Form
-          inverted
           size="large"
           onSubmit={this.onSubmit}
           error={this.state.error}

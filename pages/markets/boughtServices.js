@@ -2,18 +2,22 @@ import React, { Component } from "react";
 import Layout from "../../components/Layout";
 import LabourMarket from "../../ethereum/labourMarket";
 import BackButton from "../../components/backButton";
-import { Table, Card, Image, Message } from "semantic-ui-react";
+import { Table, Card, Image, Message, Button } from "semantic-ui-react";
 import ServiceRow from "../../components/serviceRow";
 import web3 from "../../ethereum/web3";
 
 class BoughtServices extends Component {
+  state = {
+    account: "",
+    complete: false,
+    all: true,
+  };
   static async getInitialProps(props) {
     const { address } = props.query;
     const market = LabourMarket(address);
     const sellerAddress = await market.methods.seller().call();
     const servicesCount = await market.methods.getServiceCount().call();
-    const accounts = await web3.eth.getAccounts();
-    const account = accounts[0];
+
     const serviceTypesCount = await market.methods
       .getServiceTypesCount()
       .call();
@@ -34,7 +38,7 @@ class BoughtServices extends Component {
         })
     );
 
-    return { account, address, sellerAddress, services, serviceTypes, market };
+    return { address, sellerAddress, services, serviceTypes, market };
   }
 
   getHeader(index) {
@@ -45,16 +49,42 @@ class BoughtServices extends Component {
     return { header };
   }
 
-  renderRow() {
+  async getAccount() {
+    const accounts = await web3.eth.getAccounts();
+    const account = accounts[0];
+
+    this.setState({ account: account });
+  }
+
+  renderRowAll() {
+    this.getAccount();
     return this.props.services.map((service, index) => {
       return (
         <ServiceRow
           key={index}
           id={index}
           service={service}
-          buyer={this.props.account}
+          buyer={this.state.account}
           header={this.getHeader(index).header}
           address={this.props.address}
+          notCompleted={false}
+        />
+      );
+    });
+  }
+
+  renderRowPending() {
+    this.getAccount();
+    return this.props.services.map((service, index) => {
+      return (
+        <ServiceRow
+          key={index}
+          id={index}
+          service={service}
+          buyer={this.state.account}
+          header={this.getHeader(index).header}
+          address={this.props.address}
+          notCompleted={service.complete}
         />
       );
     });
@@ -83,13 +113,44 @@ class BoughtServices extends Component {
         <Table stackable celled striped selectable color="brown">
           <Header>
             <Row>
+              <HeaderCell colSpan="4">
+                <div className="ui two buttons">
+                  <Button
+                    color="yellow"
+                    onClick={(event) =>
+                      this.setState({ complete: false, all: true })
+                    }
+                    disabled={this.state.all}
+                  >
+                    All
+                  </Button>
+
+                  <Button
+                    color="red"
+                    onClick={(event) =>
+                      this.setState({ complete: true, all: false })
+                    }
+                    disabled={this.state.complete}
+                  >
+                    Pending
+                  </Button>
+                </div>
+              </HeaderCell>
+            </Row>
+          </Header>
+          <Header>
+            <Row>
               <HeaderCell>ID</HeaderCell>
               <HeaderCell>Service</HeaderCell>
               <HeaderCell>Status</HeaderCell>
               <HeaderCell>Validation</HeaderCell>
             </Row>
           </Header>
-          <Body>{this.renderRow()}</Body>
+          {this.state.all ? (
+            <Body>{this.renderRowAll()}</Body>
+          ) : (
+            <Body>{this.renderRowPending()}</Body>
+          )}
         </Table>
       </Layout>
     );

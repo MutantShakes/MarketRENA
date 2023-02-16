@@ -19,15 +19,17 @@ import {
 
 import { Link, Router } from "../../routes";
 import LabourMarket from "../../ethereum/labourMarket";
-import PhysicalMarket from "../../ethereum/physicalMarket";
 import {
   useContract,
   useContractRead,
   useContractReads,
   useAccount,
+  useContractInfiniteReads,
 } from "wagmi";
 import MarketFactory from "../../ethereum/build/MarketFactory.json";
+import { Livepeer } from "../../components/player";
 import { useRouter } from "next/router";
+import { BigNumber } from "ethers";
 
 function DeployedMarkets() {
   const router = useRouter();
@@ -39,8 +41,8 @@ function DeployedMarkets() {
     errorStatus: "hidden",
   };
 
-  const [marketAddress, setMA] = useState("");
-  const [copy, setCopy] = useState(false);
+  const [ownerAddress, setOwnerAddress] = useState(null);
+  const [copy, setCopy] = useState("null");
   const [msg, setMsg] = useState(errorHandling);
   const [markets, setMarkets] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -48,23 +50,29 @@ function DeployedMarkets() {
   const { data, isError, isLoading } = useContractReads({
     contracts: [
       {
-        address: "0x479444C66a5fA9AC77E9FbD19620aE62a3a9bD52",
+        address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
         abi: MarketFactory.abi,
         functionName: "getDeployedLabourMarkets",
       },
       {
-        address: "0x479444C66a5fA9AC77E9FbD19620aE62a3a9bD52",
-        abi: MarketFactory.abi,
-        functionName: "getDeployedPhysicalMarkets",
-      },
-      {
-        address: "0x479444C66a5fA9AC77E9FbD19620aE62a3a9bD52",
+        address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
         abi: MarketFactory.abi,
         functionName: "getLabourMarket",
         args: [address],
       },
+      {
+        address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+        abi: MarketFactory.abi,
+        functionName: "getLabourVideoId",
+        args: [ownerAddress],
+      },
     ],
   });
+
+  const openVideo = async (event, { address }) => {
+    setOwnerAddress(address);
+    setOpenModal(true);
+  };
 
   useEffect(() => {
     if (isDisconnected) {
@@ -74,11 +82,8 @@ function DeployedMarkets() {
 
   useEffect(() => {
     if (router.isReady && !isLoading) {
-      if (name === "Labour") {
-        setMarkets(data[0]);
-      } else if (name === "Goods") {
-        setMarkets(data[1]);
-      }
+      console.log(data[2]);
+      setMarkets(data[0]);
     }
   }, [router.isReady, data]);
 
@@ -91,7 +96,7 @@ function DeployedMarkets() {
     }));
 
     try {
-      const myMarket = data[2];
+      const myMarket = data[1];
 
       if (
         !myMarket ||
@@ -150,8 +155,8 @@ function DeployedMarkets() {
   const copied = (event, { address }) => {
     navigator.clipboard.writeText(address);
 
-    setCopy(true);
-    setTimeout(() => setCopy(false), 1000);
+    setCopy(address);
+    setTimeout(() => setCopy("null"), 1000);
   };
 
   // const renderMarkets = () => {
@@ -164,7 +169,7 @@ function DeployedMarkets() {
           <Card.Meta>
             <Popup
               on="click"
-              open={copy}
+              open={copy === address}
               content="Copied to clipboard"
               trigger={
                 <Icon
@@ -180,6 +185,18 @@ function DeployedMarkets() {
           </Card.Meta>
         </Card.Content>
         <Card.Content>{viewMarket(address)}</Card.Content>
+        <Card.Content>
+          <Button
+            disabled={false}
+            fluid
+            color="black"
+            address={address}
+            onClick={openVideo}
+          >
+            <Icon name="video" />
+            Market Video
+          </Button>
+        </Card.Content>
       </Card>
 
       // header: address,
@@ -209,8 +226,7 @@ function DeployedMarkets() {
 
         <Grid.Column width={5}>
           <Card.Group centered>
-            <Card raised>
-              <Image src="/images/marketCreate.jpeg" />
+            <Card raised fluid>
               <Card.Content>
                 <Card.Header>Want to Start your own Market?</Card.Header>
                 <Card.Meta>Market Creation</Card.Meta>
@@ -220,18 +236,26 @@ function DeployedMarkets() {
                 </Card.Description>
               </Card.Content>
               <Card.Content extra>
-                <Link route={`/markets/${name}/newMarket`}>
-                  <Button color="yellow" animated="vertical" fluid>
-                    <Button.Content visible>Create Market</Button.Content>
-                    <Button.Content hidden>
-                      <Icon name="money bill alternate outline" />
-                    </Button.Content>
-                  </Button>
-                </Link>
+                <Button
+                  color="yellow"
+                  animated="vertical"
+                  fluid
+                  onClick={() =>
+                    router.push({
+                      pathname: `/markets/${name}/newMarket`,
+                      query: { name },
+                    })
+                  }
+                >
+                  <Button.Content visible>Create Market</Button.Content>
+                  <Button.Content hidden>
+                    <Icon name="money bill alternate outline" />
+                  </Button.Content>
+                </Button>
               </Card.Content>
             </Card>
 
-            <Card raised>
+            <Card fluid raised>
               <Message
                 className={msg.errorStatus}
                 style={{ overflowWrap: "break-word" }}
@@ -239,7 +263,7 @@ function DeployedMarkets() {
                 header="ERROR"
                 content={msg.errorMessage}
               />
-              <Image src="/images/viewMarket.png" />
+
               <Card.Content>
                 <Card.Header>View your Market here</Card.Header>
                 <Card.Meta>Your Markets</Card.Meta>
@@ -266,6 +290,18 @@ function DeployedMarkets() {
           </Card.Group>
         </Grid.Column>
       </Grid>
+
+      <Modal
+        size="medium"
+        basic
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onOpen={() => setOpenModal(true)}
+      >
+        <Modal.Content>
+          {data?.[2] && <Livepeer playId={data[2]} />}
+        </Modal.Content>
+      </Modal>
     </Layout>
   );
 }

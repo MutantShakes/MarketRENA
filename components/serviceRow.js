@@ -58,88 +58,98 @@ class ServiceRow extends Component {
     const { Row, Cell } = Table;
 
     return (
-      <Row hidden={this.props.buyer !== this.props.service.buyer}>
-        <Cell>{this.props.service.requestTime}</Cell>
-        <Cell>
-          <Label ribbon size="large" color="red">
-            {this.props.header}
-          </Label>
-        </Cell>
+      <>
+        {this.props.buyer === this.props.service.buyer &&
+        !this.props.notCompleted ? (
+          <Row
+            hidden={
+              this.props.buyer !== this.props.service.buyer ||
+              this.props.notCompleted
+            }
+          >
+            <Cell>{this.props.service.requestTime}</Cell>
+            <Cell>
+              <Label ribbon size="large" color="red">
+                {this.props.header}
+              </Label>
+            </Cell>
 
-        {this.props.service.complete ? (
-          <Cell positive>Completed</Cell>
-        ) : (
-          <Cell warning>Pending</Cell>
-        )}
-
-        <Cell>
-          {this.props.service.complete ? (
-            <Icon color="green" name="checkmark" size="large" />
-          ) : (
-            <div className="ui two buttons ">
-              <Button
-                color="yellow"
-                onClick={this.buyerApprove}
-                loading={this.state.loading}
-                disabled={this.props.service.buyerApprove}
-                fluid
-              >
-                Validate
-              </Button>
-              <Button
-                color="red"
-                onClick={this.buyerCancel}
-                loading={this.state.loading}
-                disabled={this.props.service.buyerApprove}
-                fluid
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
-
-          <Modal size="mini" basic open={this.state.error}>
-            <Modal.Header as="h1" icon>
-              <Icon color="red" size="huge" name="globe" />
-              Something went Wrong
-            </Modal.Header>
-            <Modal.Actions>
-              <Button
-                fluid
-                color="red"
-                inverted
-                onClick={() => this.setState({ error: false })}
-              >
-                OK
-              </Button>
-            </Modal.Actions>
-          </Modal>
-
-          <Modal size="mini" basic open={this.state.success}>
-            {this.state.cancel ? (
-              <Modal.Header as="h1" icon>
-                <Icon color="yellow" size="huge" name="globe" />
-                Cancellation successfull
-              </Modal.Header>
+            {this.props.service.complete ? (
+              <Cell positive>Completed</Cell>
             ) : (
-              <Modal.Header as="h1" icon>
-                <Icon color="yellow" size="huge" name="globe" />
-                Validation successfull
-              </Modal.Header>
+              <Cell warning>Pending</Cell>
             )}
-            <Modal.Actions>
-              <Button
-                fluid
-                color="yellow"
-                inverted
-                onClick={() => this.setState({ success: false })}
-              >
-                OK
-              </Button>
-            </Modal.Actions>
-          </Modal>
-        </Cell>
-      </Row>
+
+            <Cell>
+              {this.props.service.complete ? (
+                <Icon color="green" name="checkmark" size="large" />
+              ) : (
+                <div className="ui two buttons ">
+                  <Button
+                    color="yellow"
+                    onClick={this.buyerApprove}
+                    loading={this.state.loading}
+                    disabled={this.props.service.buyerApprove}
+                    fluid
+                  >
+                    Validate
+                  </Button>
+                  <Button
+                    color="red"
+                    onClick={this.buyerCancel}
+                    loading={this.state.loading}
+                    disabled={this.props.service.buyerApprove}
+                    fluid
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+
+              <Modal size="mini" basic open={this.state.error}>
+                <Modal.Header as="h1" icon>
+                  <Icon color="red" size="huge" name="globe" />
+                  Something went Wrong
+                </Modal.Header>
+                <Modal.Actions>
+                  <Button
+                    fluid
+                    color="red"
+                    inverted
+                    onClick={() => this.setState({ error: false })}
+                  >
+                    OK
+                  </Button>
+                </Modal.Actions>
+              </Modal>
+
+              <Modal size="mini" basic open={this.state.success}>
+                {this.state.cancel ? (
+                  <Modal.Header as="h1" icon>
+                    <Icon color="yellow" size="huge" name="globe" />
+                    Cancellation successfull
+                  </Modal.Header>
+                ) : (
+                  <Modal.Header as="h1" icon>
+                    <Icon color="yellow" size="huge" name="globe" />
+                    Validation successfull
+                  </Modal.Header>
+                )}
+                <Modal.Actions>
+                  <Button
+                    fluid
+                    color="yellow"
+                    inverted
+                    onClick={() => this.setState({ success: false })}
+                  >
+                    OK
+                  </Button>
+                </Modal.Actions>
+              </Modal>
+            </Cell>
+          </Row>
+        ) : null}
+      </>
     );
   }
 }

@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@livepeer/react": "^2.1.5",
     "@rainbow-me/rainbowkit": "^0.8.1",
     "@truffle/hdwallet-provider": "^2.1.5",
     "@walletconnect/web3-provider": "^1.8.0",
@@ -23,6 +24,7 @@
     "next-themes": "^0.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
     "semantic-ui-css": "^2.5.0",
     "semantic-ui-react": "^2.1.4",
     "solc": "^0.8.9",

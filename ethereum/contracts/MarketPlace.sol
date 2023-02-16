@@ -5,16 +5,14 @@ pragma solidity ^0.8.9;
 
 contract MarketFactory {
 
-
-
-
     address payable[] public deployedLabourMarkets;
-    address payable[] public deployedPhysicalMarkets;
+
+    mapping(address => string) public getLabourVideoId;
 
     mapping(address => address) public getLabourMarket;
+
     mapping(address => bool) public labourMarketOwned;
-    mapping(address => bool) public physicalMarketOwned;
-    mapping(address => address) public getPhysicalMarket;
+
 
     function createLabourMarket() public {
         require(!labourMarketOwned[msg.sender]);
@@ -24,12 +22,13 @@ contract MarketFactory {
         labourMarketOwned[msg.sender] = true;
     }
 
-     function createPhysicalMarket() public {
-     require(!physicalMarketOwned[msg.sender]);
-        address newMarket = address(new PhysicalMarket(msg.sender));
-        deployedPhysicalMarkets.push(payable(newMarket));
-        getPhysicalMarket[msg.sender] = newMarket;
-        physicalMarketOwned[msg.sender] = true;
+
+
+    function uploadLabourVideo(string memory playbackId) public {
+        require(labourMarketOwned[msg.sender]);
+
+        getLabourVideoId[getLabourMarket[msg.sender]] = playbackId;
+
     }
 
 
@@ -38,9 +37,7 @@ contract MarketFactory {
         return deployedLabourMarkets;
     }
 
-    function getDeployedPhysicalMarkets() public view returns (address payable[] memory) {
-        return deployedPhysicalMarkets;
-    }
+
 
 }
 
@@ -197,12 +194,4 @@ contract LabourMarket {
     }
 
 
-}
-
-contract PhysicalMarket {
-    address public seller;
-
-    constructor (address creator) public {
-        seller = creator;
-    }
 }

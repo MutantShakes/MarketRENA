@@ -4,7 +4,7 @@ import MarketFactory from "./build/MarketFactory.json";
 
 const instance = new web3.eth.Contract(
   MarketFactory.abi,
-  "0x479444C66a5fA9AC77E9FbD19620aE62a3a9bD52" // deployed contract "MarketFactory" address
+  "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290" // deployed contract "MarketFactory" address
 );
 
 export default instance;

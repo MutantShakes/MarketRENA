@@ -1,7 +1,5 @@
-import React, { Component, useState, useEffect } from "react";
+import React, { Component, useState } from "react";
 import Layout from "../../../components/Layout";
-import Load from "../../../components/tempUpload";
-
 import BackButton from "../../../components/backButton";
 import factory from "../../../ethereum/factory";
 import web3 from "../../../ethereum/web3";
@@ -24,12 +22,11 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
-  useContractReads,
 } from "wagmi";
 import { useRouter } from "next/router";
-import MarketFactory from "../../../ethereum/build/MarketFactory.json";
+import MarketFactory from "../ethereum/build/MarketFactory.json";
 
-function NewMarketCreation() {
+function uploadLabourVideo() {
   const router = useRouter();
   const { name } = router.query;
 
@@ -44,29 +41,13 @@ function NewMarketCreation() {
 
   const [msg, setMsg] = useState(errorHandling);
   const [openModal, setOpenModal] = useState(false);
-  const [marketOwned, setMarketOwned] = useState(true);
-
-  const labourMarketOwned = useContractReads({
-    contracts: [
-      {
-        address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
-        abi: MarketFactory.abi,
-        functionName: "labourMarketOwned",
-        args: [address],
-      },
-    ],
-  });
-
-  useEffect(() => {
-    if (labourMarketOwned.isSuccess) {
-      setMarketOwned(labourMarketOwned.data[0]);
-    }
-  }, [labourMarketOwned, address]);
+  const [assetId, setAssetId] = useState("");
 
   const { config } = usePrepareContractWrite({
-    address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+    address: "0x479444C66a5fA9AC77E9FbD19620aE62a3a9bD52",
     abi: MarketFactory.abi,
-    functionName: "createLabourMarket",
+    functionName: "uploadLabourVideo",
+    args: [assetId],
     overrides: {
       from: address,
     },
@@ -76,8 +57,8 @@ function NewMarketCreation() {
 
   const { data, isLoading, isError, isSuccess } = useWaitForTransaction({
     hash: contractWrite.data?.hash,
-    onSuccess(data) {
-      console.log("Success:", data);
+    onSuccess() {
+      setTimeout(Router.back(), 2000);
     },
   });
 
@@ -92,9 +73,9 @@ function NewMarketCreation() {
     <Layout>
       <BackButton name="New Market" />
 
-      <Segment placeholder>
+      <Segment placeholder inverted style={{ backgroundColor: "#0d0d0d" }}>
         <Grid columns={2} stackable textAlign="center">
-          <Divider vertical />
+          <Divider vertical hidden />
 
           <Grid.Row verticalAlign="middle">
             <Grid.Column>
@@ -140,7 +121,7 @@ function NewMarketCreation() {
                 />
 
                 <Button
-                  disabled={!contractWrite.write || marketOwned}
+                  disabled={!contractWrite.write}
                   loading={isLoading}
                   color="yellow"
                   size="large"
@@ -149,7 +130,6 @@ function NewMarketCreation() {
                   Create Market
                 </Button>
               </Form>
-              <Load />
             </Grid.Column>
           </Grid.Row>
         </Grid>
@@ -158,4 +138,4 @@ function NewMarketCreation() {
   );
 }
 
-export default NewMarketCreation;
+export default uploadLabourVideo;

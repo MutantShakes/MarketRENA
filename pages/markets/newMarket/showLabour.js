@@ -14,7 +14,6 @@ import {
 import web3 from "../../../ethereum/web3";
 import { Link, Router } from "../../../routes";
 import LabourMarket from "../../../ethereum/labourMarket";
-import PhysicalMarket from "../../../ethereum/physicalMarket";
 import MarketDescription from "../../../components/ViewLabourMarket";
 
 class MarketView extends Component {

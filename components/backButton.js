@@ -6,18 +6,15 @@ class BackButton extends Component {
   render() {
     const { name } = this.props;
     return (
-      <Segment inverted basic style={{ backgroundColor: "#0d0d0d" }}>
-        <h3>
-          <Icon
-            inverted
-            size="large"
-            name="arrow alternate circle left outline"
-            link={true}
-            onClick={() => Router.back()}
-          />
-          {name}
-        </h3>
-      </Segment>
+      <h3>
+        <Icon
+          size="large"
+          name="arrow alternate circle left outline"
+          link={true}
+          onClick={() => Router.back()}
+        />
+        {name}
+      </h3>
     );
   }
 }

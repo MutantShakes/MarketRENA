@@ -31,6 +31,7 @@ import {
 } from "wagmi";
 import { useRouter } from "next/router";
 import MarketFactory from "../../../ethereum/build/MarketFactory.json";
+import factoryAddress from "../../../ethereum/factoryAddress";
 import { AddVideo } from "../../../components/addVideo";
 import { ModalMessage } from "../../../components/modal";
 
@@ -53,7 +54,7 @@ function NewMarketCreation() {
   const labourMarketOwned = useContractReads({
     contracts: [
       {
-        address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+        address: factoryAddress,
         abi: MarketFactory.abi,
         functionName: "labourMarketOwned",
         args: [address],
@@ -68,7 +69,7 @@ function NewMarketCreation() {
   }, [labourMarketOwned, address]);
 
   const { config } = usePrepareContractWrite({
-    address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+    address: factoryAddress,
     abi: MarketFactory.abi,
     functionName: "createLabourMarket",
     overrides: {

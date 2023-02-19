@@ -12,11 +12,12 @@ import {
 } from "wagmi";
 import MarketFactory from "../ethereum/build/MarketFactory.json";
 import { ModalUpload } from "./modalUpload";
+import factoryAddress from "../ethereum/factoryAddress";
 
 export function AddVideo({ assetId }) {
   const { address, isConnecting, isConnected, isDisconnected } = useAccount();
   const { config } = usePrepareContractWrite({
-    address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+    address: factoryAddress,
     abi: MarketFactory.abi,
     functionName: "uploadLabourVideo",
     args: [assetId],

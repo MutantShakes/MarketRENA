@@ -19,6 +19,7 @@ import {
 
 import { Link, Router } from "../../routes";
 import LabourMarket from "../../ethereum/labourMarket";
+import factoryAddress from "../../ethereum/factoryAddress";
 import {
   useContract,
   useContractRead,
@@ -50,18 +51,18 @@ function DeployedMarkets() {
   const { data, isError, isLoading } = useContractReads({
     contracts: [
       {
-        address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+        address: factoryAddress,
         abi: MarketFactory.abi,
         functionName: "getDeployedLabourMarkets",
       },
       {
-        address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+        address: factoryAddress,
         abi: MarketFactory.abi,
         functionName: "getLabourMarket",
         args: [address],
       },
       {
-        address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+        address: factoryAddress,
         abi: MarketFactory.abi,
         functionName: "getLabourVideoId",
         args: [ownerAddress],
@@ -82,7 +83,7 @@ function DeployedMarkets() {
 
   useEffect(() => {
     if (router.isReady && !isLoading) {
-      console.log(data[2]);
+      console.log(factoryAddress);
       setMarkets(data[0]);
     }
   }, [router.isReady, data]);

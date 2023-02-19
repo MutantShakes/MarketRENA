@@ -19,12 +19,12 @@ import {
 } from "@livepeer/react";
 
 const client = createReactClient({
-  provider: studioProvider({ apiKey: "" }), // Livepeer API
+  provider: studioProvider({ apiKey: "ac31c2f7-c877-419c-a7f5-85c0d9fc566b" }), // Livepeer API
 });
 
 const { chains, provider } = configureChains(
   [goerli, mainnet, polygon, optimism, arbitrum],
-  [infuraProvider({ apiKey: "" })] //infura API
+  [infuraProvider({ apiKey: "6daee45f958b4a4ba25dd391d48358ed" })] //infura API
 );
 
 const { connectors } = getDefaultWallets({

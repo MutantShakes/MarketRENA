@@ -3,13 +3,13 @@
 Setup:
 (Skip Deployment if you want to work with deployed smart contract)
 
-1. deploy.js setup:
+1. /ethereum/deploy.js setup:
    Enter your mnemonic and infura api in the designated section.
 
-2. web3.js setup:
+2. /ethereum/web3.js setup:
    Enter your infura api in the designated section.
 
-3. app.js setup:
+3. /pages/app.js setup:
    Enter you livepeer API and infura API in the designated section.
 
 4. Deployment:

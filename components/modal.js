@@ -20,14 +20,20 @@ import {
 } from "wagmi";
 import MarketFactory from "../ethereum/build/MarketFactory.json";
 import { Router } from "../routes";
+import { useRouter } from "next/router";
 
 export function ModalMessage({ message, color, openModal }) {
+  const [open, setOpenModal] = useState(false);
+  const router = useRouter();
+  useEffect(() => {
+    setOpenModal(openModal);
+  }, [openModal]);
   return (
     <Modal
       size="mini"
       basic
-      open={openModal}
-      onClose={() => setOpenModal(false)}
+      open={open}
+      onClose={() => router.reload(window.location.pathname)}
       onOpen={() => setOpenModal(true)}
     >
       <Modal.Header as="h1" icon>

@@ -3,7 +3,15 @@ import { Livepeer } from "./player";
 
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Button, Progress, Card, Input, Icon } from "semantic-ui-react";
+import {
+  Button,
+  Progress,
+  Card,
+  Input,
+  Icon,
+  Segment,
+  Loader,
+} from "semantic-ui-react";
 import {
   useAccount,
   usePrepareContractWrite,
@@ -70,6 +78,7 @@ export function Asset() {
         : null,
     [progress]
   );
+
   const [assetId, setAssetId] = useState("");
 
   useEffect(() => {
@@ -78,38 +87,13 @@ export function Asset() {
     }
   }, [asset]);
 
-  const { config } = usePrepareContractWrite({
-    address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
-    abi: MarketFactory.abi,
-    functionName: "uploadLabourVideo",
-    args: [assetId],
-    overrides: {
-      from: address,
-    },
-  });
-
-  const contractWrite = useContractWrite(config);
-
-  const waitFor = useWaitForTransaction({
-    hash: contractWrite.data?.hash,
-    onSuccess() {
-      setTimeout(Router.back(), 2000);
-    },
-  });
-
-  const onSubmit = async (event) => {
-    event.preventDefault();
-
-    contractWrite.write();
-  };
-
   return (
-    <div>
+    <Segment basic textAlign="center">
       {!asset && (
-        <Card fluid {...getRootProps()}>
+        <Card centered {...getRootProps()}>
           <input {...getInputProps()} />
           <Card.Content>
-            <Icon name="file" />
+            <Icon name="file video" />
             Drag and drop or browse files
           </Card.Content>
 
@@ -137,23 +121,30 @@ export function Asset() {
               )}
             </Card.Meta>
 
-            {asset?.[0]?.playbackId && progress?.[0].phase === "success" && (
+            {asset?.[0]?.playbackId && progress?.[0].phase !== "failed" && (
               <AddVideo assetId={asset[0].playbackId} />
             )}
             {!asset?.[0].id && (
-              <Button
-                onClick={() => {
-                  createAsset?.();
-                }}
-                disabled={isLoading || !createAsset}
-                floated="right"
-              >
-                {progressFormatted ? <p>{progressFormatted}</p> : <p>Upload</p>}
-              </Button>
+              <>
+                <Button
+                  onClick={() => {
+                    createAsset?.();
+                  }}
+                  disabled={isLoading || !createAsset}
+                  loading={isLoading && !progressFormatted}
+                  floated="right"
+                >
+                  {progressFormatted ? (
+                    <p>{progressFormatted}</p>
+                  ) : (
+                    <p>Upload</p>
+                  )}
+                </Button>
+              </>
             )}
           </Card.Content>
         </Card>
       </div>
-    </div>
+    </Segment>
   );
 }

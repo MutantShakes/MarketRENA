@@ -18,6 +18,8 @@ import {
   Search,
   Divider,
   Input,
+  Modal,
+  Card,
 } from "semantic-ui-react";
 import { Router, Link } from "../../../routes";
 import {
@@ -33,22 +35,20 @@ import { AddVideo } from "../../../components/addVideo";
 import { ModalMessage } from "../../../components/modal";
 
 function NewMarketCreation() {
-  const router = useRouter();
-  const { name } = router.query;
-
-  const { address, isConnecting, isConnected, isDisconnected } = useAccount();
-
   const errorHandling = {
     loading: false,
     Message: "",
     success: false,
     error: false,
   };
-
+  const router = useRouter();
+  const { name } = router.query;
+  const [openModal, setOpenModal] = useState("");
   const [msg, setMsg] = useState(errorHandling);
-  const [openModal, setOpenModal] = useState(false);
   const [marketOwned, setMarketOwned] = useState(true);
   const [assetId, setAssetId] = useState("");
+
+  const { address, isConnecting, isConnected, isDisconnected } = useAccount();
 
   const labourMarketOwned = useContractReads({
     contracts: [
@@ -91,10 +91,69 @@ function NewMarketCreation() {
     contractWrite.write();
   };
 
-  // Reminder to add Modal in this
   return (
     <Layout>
       <BackButton name="New Market" />
+
+      <Card.Group stackable itemsPerRow={2}>
+        <Card raised link fluid onClick={() => setOpenModal("upload")}>
+          <Card.Content>
+            <Header icon>
+              <Icon name="upload" />
+              Upload Market Video
+            </Header>
+          </Card.Content>
+        </Card>
+        <Card raised link fluid onClick={() => setOpenModal("addVideo")}>
+          <Card.Content>
+            <Header icon>
+              <Icon name="video" />
+              Add Video
+            </Header>
+          </Card.Content>
+        </Card>
+      </Card.Group>
+
+      <Modal
+        open={openModal === "upload"}
+        onOpen={() => setOpenModal("upload")}
+        size="small"
+      >
+        <Icon name="close" link onClick={() => setOpenModal("")} />
+
+        <Segment raised basic>
+          <Header icon textAlign="center">
+            <Icon name="upload" />
+            Upload Market Video
+          </Header>
+          <Asset />
+        </Segment>
+      </Modal>
+
+      <Modal
+        open={openModal === "addVideo"}
+        onClose={() => setOpenModal("")}
+        onOpen={() => setOpenModal("addVideo")}
+        size="mini"
+      >
+        <Icon name="close" link onClick={() => setOpenModal("")} />
+        <Segment raised basic>
+          <Header icon textAlign="center">
+            <Icon name="video" />
+            Add Video
+          </Header>
+          <Input
+            style={{ marginTop: 10 }}
+            fluid
+            floated="center"
+            icon="cloud upload"
+            value={assetId}
+            onChange={(event) => setAssetId(event.target.value)}
+            placeholder="Enter playbackId..."
+          />
+          <AddVideo assetId={assetId} />
+        </Segment>
+      </Modal>
 
       <Segment placeholder>
         <Grid columns={2} stackable textAlign="center">
@@ -149,38 +208,6 @@ function NewMarketCreation() {
                   Create Market
                 </Button>
               </Form>
-            </Grid.Column>
-          </Grid.Row>
-        </Grid>
-      </Segment>
-      <Segment placeholder>
-        <Grid columns={2} stackable textAlign="center">
-          <Divider vertical>Or</Divider>
-
-          <Grid.Row verticalAlign="middle">
-            <Grid.Column>
-              <Header icon>
-                <Icon name="upload" />
-                Upload Market Video
-              </Header>
-              <Asset />
-            </Grid.Column>
-            <Grid.Column>
-              <Header icon>
-                <Icon name="video" />
-                Add Video
-              </Header>
-
-              <Input
-                style={{ marginTop: 10 }}
-                fluid
-                floated="center"
-                icon="cloud upload"
-                value={assetId}
-                onChange={(event) => setAssetId(event.target.value)}
-                placeholder="Enter playbackId..."
-              />
-              <AddVideo assetId={assetId} />
             </Grid.Column>
           </Grid.Row>
         </Grid>

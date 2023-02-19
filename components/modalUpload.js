@@ -1,6 +1,5 @@
 import { Player, useAssetMetrics, useCreateAsset } from "@livepeer/react";
 import { Livepeer } from "./player";
-
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import {
@@ -20,9 +19,16 @@ import {
 } from "wagmi";
 import MarketFactory from "../ethereum/build/MarketFactory.json";
 import { Router } from "../routes";
+import { useRouter } from "next/router";
 
 export function ModalUpload({ message, color, openModal, playbackId }) {
   const [copy, setCopy] = useState(null);
+  const [open, setOpenModal] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    setOpenModal(openModal);
+  }, [openModal]);
   const copied = (event) => {
     navigator.clipboard.writeText(playbackId);
 
@@ -33,8 +39,8 @@ export function ModalUpload({ message, color, openModal, playbackId }) {
     <Modal
       size="mini"
       basic
-      open={openModal}
-      onClose={() => setOpenModal(false)}
+      open={open}
+      onClose={() => router.reload(window.location.pathname)}
       onOpen={() => setOpenModal(true)}
     >
       <Modal.Header as="h1" icon>

@@ -199,6 +199,9 @@ function DeployedMarkets() {
     );
   });
 
+  //   return <Card.Group items={items} centered />;
+  // };
+
   const bname = name + " Market";
 
   return (

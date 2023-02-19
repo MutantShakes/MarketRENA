@@ -1,11 +1,21 @@
 import { Player, useAssetMetrics, useCreateAsset } from "@livepeer/react";
 import { Livepeer } from "./player";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
+import { Button, Progress, Card, Input, Icon } from "semantic-ui-react";
+import {
+  useAccount,
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
+import MarketFactory from "../ethereum/build/MarketFactory.json";
+import { AddVideo } from "./addVideo";
 
-export const Asset = () => {
+export function Asset() {
   const [video, setVideo] = useState(null);
+  const { address, isConnecting, isConnected, isDisconnected } = useAccount();
 
   const {
     mutate: createAsset,
@@ -13,6 +23,7 @@ export const Asset = () => {
     status,
     progress,
     error,
+    isError,
   } = useCreateAsset(
     video
       ? {
@@ -59,43 +70,90 @@ export const Asset = () => {
         : null,
     [progress]
   );
+  const [assetId, setAssetId] = useState("");
+
+  useEffect(() => {
+    if (status === "success") {
+      setAssetId(asset[0].playbackId);
+    }
+  }, [asset]);
+
+  const { config } = usePrepareContractWrite({
+    address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+    abi: MarketFactory.abi,
+    functionName: "uploadLabourVideo",
+    args: [assetId],
+    overrides: {
+      from: address,
+    },
+  });
+
+  const contractWrite = useContractWrite(config);
+
+  const waitFor = useWaitForTransaction({
+    hash: contractWrite.data?.hash,
+    onSuccess() {
+      setTimeout(Router.back(), 2000);
+    },
+  });
+
+  const onSubmit = async (event) => {
+    event.preventDefault();
+
+    contractWrite.write();
+  };
 
   return (
     <div>
       {!asset && (
-        <div {...getRootProps()}>
+        <Card fluid {...getRootProps()}>
           <input {...getInputProps()} />
-          <p>Drag and drop or browse files</p>
+          <Card.Content>
+            <Icon name="file" />
+            Drag and drop or browse files
+          </Card.Content>
 
           {error?.message && <p>{error.message}</p>}
-        </div>
-      )}
-
-      {asset?.[0]?.playbackId && (
-        // <Player title={asset[0].name} playbackId={asset[0].playbackId} />
-        <Livepeer playId={asset[0].playbackId} />
+        </Card>
       )}
 
       <div>
-        {metrics?.metrics?.[0] && (
-          <p>Views: {metrics?.metrics?.[0]?.startViews}</p>
-        )}
+        <Card fluid>
+          <Card.Content>
+            <Card.Header>
+              <Progress
+                percent={Math.round(progress?.[0].progress * 100)}
+                indicating
+                error={progress?.[0].phase === "failed"}
+                size="small"
+              />
+            </Card.Header>
 
-        {video ? <p>{video.name}</p> : <p>Select a video file to upload.</p>}
+            <Card.Meta>
+              {video ? (
+                <Card.Meta>{video.name}</Card.Meta>
+              ) : (
+                <Card.Meta>Select a video file to upload.</Card.Meta>
+              )}
+            </Card.Meta>
 
-        {progressFormatted && <p>{progressFormatted}</p>}
-
-        {!asset?.[0].id && (
-          <button
-            onClick={() => {
-              createAsset?.();
-            }}
-            disabled={isLoading || !createAsset}
-          >
-            Upload
-          </button>
-        )}
+            {asset?.[0]?.playbackId && progress?.[0].phase === "success" && (
+              <AddVideo assetId={asset[0].playbackId} />
+            )}
+            {!asset?.[0].id && (
+              <Button
+                onClick={() => {
+                  createAsset?.();
+                }}
+                disabled={isLoading || !createAsset}
+                floated="right"
+              >
+                {progressFormatted ? <p>{progressFormatted}</p> : <p>Upload</p>}
+              </Button>
+            )}
+          </Card.Content>
+        </Card>
       </div>
     </div>
   );
-};
+}

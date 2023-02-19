@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Menu, Icon, Segment, Container } from "semantic-ui-react";
+import { Menu, Icon, Segment, Container, Image } from "semantic-ui-react";
 import { Router } from "../routes";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
@@ -17,11 +17,15 @@ class Header extends Component {
     return (
       <Menu fixed="top" inverted>
         <Container>
-          <Menu.Item
-            icon="globe"
-            name="marketRENA"
-            onClick={this.handleItemClick}
-          />
+          <Menu.Item onClick={this.handleItemClick}>
+            <Image
+              avatar
+              size="mini"
+              src="/images/logo.png"
+              style={{ marginRight: "1.5em" }}
+            />
+            MarketRENA
+          </Menu.Item>
 
           <Menu.Menu position="right">
             <Menu.Item>

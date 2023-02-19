@@ -19,15 +19,15 @@ const PosterImage = () => {
 
 const playbackId = "6d7el73r1y12chxr";
 
-export function Livepeer({ playId }) {
+export function Livepeer({ playId, title }) {
   return (
     <Player
-      title="Market Demo"
+      title={title}
       playbackId={playId}
       autoPlay={false}
       showTitle={true}
       showPipButton
-      poster={<PosterImage />}
+      //poster={<PosterImage />}
       theme={{
         borderStyles: { containerBorderStyle: "hidden" },
         radii: { containerBorderRadius: "10px" },

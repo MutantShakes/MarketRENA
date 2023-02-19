@@ -107,7 +107,7 @@ class MarketView extends Component {
                     onClick={this.viewPendingService}
                     disabled={!isDisabled}
                     content="Pending Service"
-                    icon="add circle"
+                    icon="question circle outline"
                     color="yellow"
                     labelPosition="right"
                   />

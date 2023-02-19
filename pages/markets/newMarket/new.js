@@ -1,7 +1,7 @@
 import React, { Component, useState, useEffect } from "react";
 import Layout from "../../../components/Layout";
-import Load from "../../../components/tempUpload";
 
+import { Asset } from "../../../components/uploadVideo";
 import BackButton from "../../../components/backButton";
 import factory from "../../../ethereum/factory";
 import web3 from "../../../ethereum/web3";
@@ -17,6 +17,7 @@ import {
   Header,
   Search,
   Divider,
+  Input,
 } from "semantic-ui-react";
 import { Router, Link } from "../../../routes";
 import {
@@ -28,6 +29,8 @@ import {
 } from "wagmi";
 import { useRouter } from "next/router";
 import MarketFactory from "../../../ethereum/build/MarketFactory.json";
+import { AddVideo } from "../../../components/addVideo";
+import { ModalMessage } from "../../../components/modal";
 
 function NewMarketCreation() {
   const router = useRouter();
@@ -45,6 +48,7 @@ function NewMarketCreation() {
   const [msg, setMsg] = useState(errorHandling);
   const [openModal, setOpenModal] = useState(false);
   const [marketOwned, setMarketOwned] = useState(true);
+  const [assetId, setAssetId] = useState("");
 
   const labourMarketOwned = useContractReads({
     contracts: [
@@ -121,22 +125,18 @@ function NewMarketCreation() {
 
             <Grid.Column>
               <Header icon>
-                <Icon name="globe" size="huge" color="yellow" />
+                <Icon name="globe" size="huge" />
               </Header>
               <Form onSubmit={onSubmit} error={isError} success={isSuccess}>
-                <Message
-                  success
-                  style={{ overflowWrap: "break-word" }}
-                  visible={isSuccess}
-                  header="SUCCESS"
-                  content="Market Successfully created."
+                <ModalMessage
+                  message="Transaction Failed"
+                  color="red"
+                  openModal={isError}
                 />
-                <Message
-                  style={{ overflowWrap: "break-word" }}
-                  error
-                  visible={isError}
-                  header="ERROR"
-                  content="Transaction Failed"
+                <ModalMessage
+                  message="Market Successfully created"
+                  color="yellow"
+                  openModal={isSuccess}
                 />
 
                 <Button
@@ -149,7 +149,38 @@ function NewMarketCreation() {
                   Create Market
                 </Button>
               </Form>
-              <Load />
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+      </Segment>
+      <Segment placeholder>
+        <Grid columns={2} stackable textAlign="center">
+          <Divider vertical>Or</Divider>
+
+          <Grid.Row verticalAlign="middle">
+            <Grid.Column>
+              <Header icon>
+                <Icon name="upload" />
+                Upload Market Video
+              </Header>
+              <Asset />
+            </Grid.Column>
+            <Grid.Column>
+              <Header icon>
+                <Icon name="video" />
+                Add Video
+              </Header>
+
+              <Input
+                style={{ marginTop: 10 }}
+                fluid
+                floated="center"
+                icon="cloud upload"
+                value={assetId}
+                onChange={(event) => setAssetId(event.target.value)}
+                placeholder="Enter playbackId..."
+              />
+              <AddVideo assetId={assetId} />
             </Grid.Column>
           </Grid.Row>
         </Grid>

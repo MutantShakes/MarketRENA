@@ -15,9 +15,8 @@ import { Router } from "../routes";
 import { useAccount, useContractRead } from "wagmi";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
-import LabourMarket from "../ethereum/build/LabourMarket.json";
+import MarketFactory from "../ethereum/build/MarketFactory.json";
 import { Livepeer } from "../components/player";
-import Load from "../components/tempUpload";
 
 function MarketPlaceIndex(props) {
   const { address, isConnected } = useAccount();
@@ -27,12 +26,16 @@ function MarketPlaceIndex(props) {
   const [found, setNotFound] = useState(true);
   const { theme, setTheme } = useTheme();
   const [addressM, setAddress] = useState("");
+  const [sellerAddress, setSellerAddress] = useState("");
 
-  const { data, isError, isLoading } = useContractRead({
-    address: addressM,
-    abi: LabourMarket.abi,
-    functionName: "seller",
+  const { data, isError, isLoading, isSuccess } = useContractRead({
+    address: "0xfcAEeC326A8fB329ce5E80Ce0DC3150EdeA9a290",
+    abi: MarketFactory.abi,
+    functionName: "getLabourMarket",
+    args: [sellerAddress],
   });
+
+  console.log(data);
 
   const handleItemClick = (event, { name }) => {
     if (name !== "Labour") {
@@ -48,7 +51,14 @@ function MarketPlaceIndex(props) {
     setNotFound(true);
     if (!isConnected) {
       setOpenModal(true);
-    } else if (!isError && !isLoading && isConnected) {
+    } else if (addressM === "") {
+      if (isSuccess) {
+        router.push({
+          pathname: `/markets/Labour/newMarket/${data}`,
+          query: { name: "Labour", address: data },
+        });
+      }
+    } else if (addressM !== "") {
       router.push({
         pathname: `/markets/Labour/newMarket/${addressM}`,
         query: { name: "Labour", address: addressM },
@@ -65,7 +75,7 @@ function MarketPlaceIndex(props) {
           <Card fluid raised>
             <Card.Content>
               <Card.Header as="h1" textAlign="center">
-                Search
+                Search Market
                 <Icon name="search" />
               </Card.Header>
               <Message error hidden={found}>
@@ -73,19 +83,33 @@ function MarketPlaceIndex(props) {
               </Message>
 
               <Input
+                disabled={sellerAddress !== ""}
                 fluid
                 required
                 label="#"
                 labelPosition="left"
                 placeholder="Enter Market Address"
+                icon="search"
                 value={addressM}
                 onChange={(event) => setAddress(event.target.value)}
+              />
+              <Input
+                disabled={addressM !== ""}
+                style={{ marginTop: 10 }}
+                fluid
+                required
+                label="@"
+                labelPosition="left"
+                placeholder="Enter Seller Address"
+                icon="search"
+                value={sellerAddress}
+                onChange={(event) => setSellerAddress(event.target.value)}
               />
             </Card.Content>
             <Card.Content>
               <Button
                 fluid
-                disabled={addressM === ""}
+                disabled={addressM === "" && sellerAddress === ""}
                 color="red"
                 onClick={takeToMarket}
                 labelPosition="right"
@@ -97,7 +121,7 @@ function MarketPlaceIndex(props) {
             </Card.Content>
 
             <Card.Content>
-              <Livepeer playId="a1a4c2r1alvrr4oh" />
+              <Livepeer playId="3ff8a0vbr217nob0" title="Website Tutorial" />
             </Card.Content>
           </Card>
         </Grid.Column>
@@ -109,7 +133,7 @@ function MarketPlaceIndex(props) {
               header="Labour Market"
               meta=""
               description="Get Labour assistant with transactions through Ethereum."
-              color="yellow"
+              color="black"
               onClick={handleItemClick}
             />
 
@@ -119,7 +143,7 @@ function MarketPlaceIndex(props) {
               header="Custom Market"
               meta=""
               description="New Market..."
-              color="yellow"
+              color="black"
               onClick={handleItemClick}
             />
             <Card
@@ -128,7 +152,7 @@ function MarketPlaceIndex(props) {
               header="Custom Market"
               meta=""
               description="New Market..."
-              color="yellow"
+              color="black"
               onClick={handleItemClick}
             />
             <Card
@@ -137,7 +161,7 @@ function MarketPlaceIndex(props) {
               header="Custom Market"
               meta=""
               description="New Market..."
-              color="yellow"
+              color="black"
               onClick={handleItemClick}
             />
           </Card.Group>
